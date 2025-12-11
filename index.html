@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TP Cryptographie - Histoire et évolution">
+    <title>Chroniques du Chiffrement : De l'Antiquité au Quantique</title>
+    <style>
+        /* --- RESET ET BASE --- */
+        :root {
+            --neon-green: #0f0;
+            --dark-bg: #050505;
+            --card-bg: #111111;
+            --glow-shadow: 0 0 10px rgba(0, 255, 0, 0.7), 0 0 20px rgba(0, 255, 0, 0.4);
+            --font-stack: 'Courier New', Courier, monospace; /* Police style terminal */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Effet Scanline d'écran CRT */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Canvas pour l'effet Matrix en arrière-plan */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.2; /* Subtil pour ne pas gêner la lecture */
+        }
+
+        /* --- LAYOUT ET CONTAINERS --- */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- TYPOGRAPHY & EFFETS --- */
+        h1, h2, h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: var(--glow-shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--neon-green);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Marqueur style terminal avant les titres h2 */
+        h2::before {
+            content: ">_ ";
+            margin-right: 10px;
+            color: white;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Style pour les blocs de "code" ou d'exemples */
+        .code-block {
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px dashed var(--neon-green);
+            padding: 15px;
+            margin: 20px 0;
+            font-family: var(--font-stack);
+            white-space: pre-wrap; /* Gère les retours à la ligne */
+            color: white;
+        }
+
+        .highlight {
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        /* Animation de frappe CSS pour le titre principal */
+        .typing-effect {
+            overflow: hidden; /* Cache le texte qui dépasse */
+            border-right: .15em solid var(--neon-green); /* Le curseur */
+            white-space: nowrap; /* Garde le texte sur une ligne */
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret .75s step-end infinite;
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            background: var(--card-bg);
+            border: 1px solid #0f04;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
+            border-color: var(--neon-green);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            border-top: 1px solid var(--neon-green);
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* --- ANIMATIONS KEYFRAMES --- */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--neon-green); }
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .typing-effect {
+                 white-space: normal; /* Sur mobile, on laisse revenir à la ligne */
+                 border-right: none;
+                 animation: none;
+            }
+            section { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <h1>
+                <span class="typing-effect">INITIALISATION: HISTOIRE_CRYPTO_V.1.0</span>
+            </h1>
+            <p class="subtitle">Du bâton de Plutarque à la menace quantique. Sécuriser l'information à travers les âges.</p>
+        </header>
+
+        <main>
+            <section id="antiquite">
+                <h2>1.0 L'Aube du Secret (Antiquité)</h2>
+                <p>La cryptographie n'est pas née avec l'ordinateur. Dès que l'homme a eu des secrets militaires ou politiques, il a cherché à les cacher.</p>
+                
+                <h3>>> La Scytale Spartiate (VIIe s. av. J-C)</h3>
+                <p>L'un des premiers dispositifs physiques. Une bande de parchemin enroulée autour d'un bâton d'un diamètre précis (la clé). Le message n'est lisible que si le destinataire possède un bâton de diamètre identique.</p>
+
+                <h3>>> Le Chiffre de César (Ier s. av. J-C)</h3>
+                <p>La substitution monoalphabétique la plus célèbre. Jules César décalait chaque lettre de 3 rangs dans l'alphabet pour ses communications militaires.</p>
+                
+                <div class="code-block">
+$ EXEMPLE: CHIFFRE DE CÉSAR (+3)
+--------------------------------
+CLAIR : ATTAQUEZ A L AUBE
+CHIFFRÉ : DWWDTXHCD D O DXEH
+
+[A devient D, B devient E, etc.]
+CLÉ = Décalage de 3.</div>
+            </section>
+
+            <section id="guerres-mondiales">
+                <h2>2.0 Le Tournant Mécanique (XXe Siècle)</h2>
+                <p>Avec la radio, les messages sont interceptables par tous. Le chiffrement devient une question de vie ou de mort à l'échelle industrielle. L'ère des machines électromécaniques commence.</p>
+
+                <h3>>> La Machine Enigma</h3>
+                <p>Utilisée par l'Allemagne nazie. Une machine à rotors qui changeait l'alphabet de substitution à chaque frappe de touche. Les configurations possibles se comptaient en milliards de milliards, rendant le décryptage manuel impossible.</p>
+
+                <h3>>> Alan Turing et Bletchley Park</h3>
+                <p>Le mathématicien Alan Turing et son équipe ont conçu la "Bombe", une machine électromécanique capable de tester les configurations d'Enigma à grande vitesse. Ce travail a raccourci la guerre d'environ deux ans.</p>
+                <div class="code-block">
+$ IMPACT HISTORIQUE
+-------------------
+>> Le casse d'Enigma est considéré comme la naissance de l'informatique moderne.
+>> Le secret a été gardé jusqu'aux années 70.</div>
+            </section>
+
+            <section id="moderne">
+                <h2>3.0 La Révolution Asymétrique (1970-Auj.)</h2>
+                <p>Le problème majeur de la cryptographie classique était l'échange de la clé. Comment envoyer la clé de déchiffrement au destinataire sans qu'elle soit interceptée ?</p>
+
+                <h3>>> La solution : RSA et la clé publique</h3>
+                <p>En 1977, Rivest, Shamir et Adleman (RSA) inventent la cryptographie asymétrique. On utilise désormais <span class="highlight">DEUX clés</span> :</p>
+                <ul>
+                    <li><strong>Clé Publique :</strong> Distribuée à tout le monde. Sert à CHIFFRER le message.</li>
+                    <li><strong>Clé Privée :</strong> Gardée secrète par le destinataire. Sert à DÉCHIFFRER.</li>
+                </ul>
+                <p style="margin-top: 1rem;">C'est la base de la sécurité sur Internet aujourd'hui (HTTPS, cadenas vert dans votre navigateur).</p>
+            </section>
+
+            <section id="futur">
+                <h2>4.0 Horizons Quantiques & Blockchain</h2>
+                <p>La cryptographie est une course sans fin entre ceux qui protègent et ceux qui cassent.</p>
+
+                <h3>>> La Blockchain (Chaîne de blocs)</h3>
+                <p>Elle n'utilise pas le chiffrement pour cacher, mais pour *authentifier*. Grâce aux fonctions de hachage, elle crée des registres immuables (ex: Bitcoin). C'est la cryptographie au service de la confiance décentralisée.</p>
+
+                <h3>>> La Menace Quantique</h3>
+                <p>Les ordinateurs actuels (binaires) mettraient des milliers d'années à casser RSA. Un ordinateur quantique suffisamment puissant pourrait le faire en quelques heures grâce à l'algorithme de Shor.</p>
+                <p>Le défi actuel est de créer la <strong>cryptographie post-quantique</strong> : des algorithmes résistants à ces futures machines.</p>
+                <div class="code-block">
+$ STATUS DU SYSTÈME
+-------------------
+>> MENACE DÉTECTÉE : Informatique Quantique.
+>> ACTION REQUISE : Mettre à jour les protocoles de sécurité.
+>> COMPTE À REBOURS : Est. 10-20 ans.</div>
+            </section>
+        </main>
+
+        <footer>
+            <p>// FIN DE TRANSMISSION. <br>
+            // TP réalisé par [SAMNICK BIGA, TONYE WILFRIED, POUGOUE JORDAN, LAPA MICHEL] - 2025. <br>
+            // Hébergé sur VPS Linux.</p>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajuster le canvas à la taille de la fenêtre
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Caractères pour l'effet matrix (Katana + chiffres + latin)
+        const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const charArray = chars.split('');
+        
+        const fontSize = 14;
+        let columns = canvas.width / fontSize; // Nombre de colonnes
+        let drops = []; // Position verticale de chaque goutte
+
+        // Initialisation des gouttes
+        function initDrops() {
+             columns = canvas.width / fontSize;
+             drops = [];
+             for(let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100; // Commence hors écran
+             }
+        }
+        initDrops();
+        window.addEventListener('resize', initDrops);
+
+        // Fonction de dessin
+        function drawMatrix() {
+            // Effet de traînée : on redessine un rectangle noir semi-transparent à chaque frame
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0'; // Vert Matrix
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < drops.length; i++) {
+                // Choix d'un caractère aléatoire
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                // Dessin du caractère
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                // Si la goutte atteint le bas ou aléatoirement, on la remet en haut
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975){
+                    drops[i] = 0;
+                }
+                // Incrémenter la position verticale
+                drops[i]++;
+            }
+        }
+
+        // Lancer l'animation (30fps environ pour cet effet "retro")
+        setInterval(drawMatrix, 33);
+    </script>
+</body>
+</html>
