@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TP Cryptographie - Sécurité des Réseaux basé sur les Modules de Cours.">
+    <title>SÉCURITÉ RÉSEAUX : Leçons de Cryptographie Modulaire</title>
+    <style>
+        /* --- RESET ET BASE --- */
+        :root {
+            --neon-green: #0f0;
+            --dark-bg: #050505;
+            --card-bg: #111111;
+            --glow-shadow: 0 0 10px rgba(0, 255, 0, 0.7), 0 0 20px rgba(0, 255, 0, 0.4);
+            --font-stack: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Effet Scanline d'écran CRT */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Canvas pour l'effet Matrix en arrière-plan */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        /* --- LAYOUT ET CONTAINERS --- */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- TYPOGRAPHY & EFFETS --- */
+        h1, h2, h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: var(--glow-shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--neon-green);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: "MODULE > ";
+            margin-right: 10px;
+            color: white;
+        }
+
+        h3 {
+             font-size: 1.2rem;
+             margin-top: 1rem;
+             color: white;
+             border-left: 3px solid var(--neon-green);
+             padding-left: 10px;
+             margin-bottom: 0.8rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+        }
+
+        .code-block {
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px dashed var(--neon-green);
+            padding: 15px;
+            margin: 20px 0;
+            font-family: var(--font-stack);
+            white-space: pre-wrap;
+            color: white;
+        }
+
+        .highlight {
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        ul { margin-left: 1.2rem; margin-bottom: 1rem; }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        /* Animation de frappe CSS pour le titre principal */
+        .typing-effect {
+            overflow: hidden;
+            border-right: .15em solid var(--neon-green);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret .75s step-end infinite;
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            background: var(--card-bg);
+            border: 1px solid #0f04;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.3);
+            border-color: var(--neon-green);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            border-top: 1px solid var(--neon-green);
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* --- ANIMATIONS KEYFRAMES --- */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--neon-green); }
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .typing-effect {
+                 white-space: normal;
+                 border-right: none;
+                 animation: none;
+            }
+            section { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <h1>
+                <span class="typing-effect">SÉCURITÉ RÉSEAUX : DEPLOIEMENT PKI V.2.0</span>
+            </h1>
+            <p class="subtitle">Analyse cryptographique modulaire pour la Licence 3.</p>
+        </header>
+
+        <main>
+            <!-- MODULE 1 -->
+            <section id="module-1">
+                <h2>1. Introduction & Objectifs de Sécurité</h2>
+
+                <h3>Historique et notions générales</h3>
+                <p>La cryptographie a évolué des procédés physiques antiques (Scytale, César) aux systèmes mathématiques et protocolaires modernes. Son objectif fondamental est de protéger l'information contre la divulgation, la modification et l'usurpation d'identité.</p>
+
+                <h3>Objectifs de sécurité (CIAN)</h3>
+                <p>On distingue classiquement quatre objectifs :</p>
+                <ul>
+                    <li><span class="highlight">Confidentialité</span> — empêcher l'accès au contenu par des adversaires non autorisés (chiffrement).</li>
+                    <li><span class="highlight">Intégrité</span> — garantir que les données reçues sont exactement celles envoyées (hachage, MAC).</li>
+                    <li><span class="highlight">Authentification</span> — vérifier l'identité de l'émetteur (certificats, signatures).</li>
+                    <li><span class="highlight">Non-répudiation</span> — empêcher un expéditeur de nier ultérieurement une action (signatures numériques avec horodatage).</li>
+                </ul>
+
+                <h3>Modèles d'attaques et principe de Kerckhoffs</h3>
+                <p>Le principe de Kerckhoffs (1883) pose que la sécurité doit reposer uniquement sur le secret de la clé et non sur l'algorithme. Les attaques se classent en passives (écoute) et actives (MITM, injection, rejeu). L'étude des modèles (chosen-plaintext, chosen-ciphertext, etc.) guide la conception d'algorithmes résistants.</p>
+
+                <div class="code-block">
+EXEMPLE — MODELES D'ATTAQUE (SIMPLIFIÉ)
+---------------------------------------
+Ciphertext-only: attaquant ne possède que des chiffrés.
+Known-plaintext: attaquant connaît des couples clair/chiffré.
+Chosen-plaintext: attaquant choisit des clairs pour obtenir des chiffrés.
+Chosen-ciphertext: attaquant soumet des chiffrés pour obtenir des déchiffrés.
+                </div>
+
+                <h3>Chiffrement symétrique — résumé (AES, DES)</h3>
+                <p>La cryptographie symétrique est rapide et efficace pour de gros volumes, mais pose un problème d'échange et de gestion des clés. Le DES est désormais obsolète ; l'AES (Rijndael) est le standard actuel (blocs 128 bits, clés 128/192/256 bits) et offre des propriétés de sécurité et de performance adaptées aux usages modernes.</p>
+
+                <div class="code-block">
+COMPARATIF AES vs DES
+---------------------
+DES  : clé 56 bits — structure Feistel — aujourd'hui cassable.
+AES  : clé 128/192/256 — structure Substitution-Permutation — recommandé.
+                </div>
+            </section>
+
+            <!-- MODULE 2 -->
+            <section id="module-2">
+                <h2>2. Cryptographie à Clé Publique (Asymétrique)</h2>
+
+                <h3>Le modèle à clé publique</h3>
+                <p>Chaque utilisateur possède une paire de clés (publique / privée). La clé publique peut être diffusée librement et sert à chiffrer ou vérifier des signatures ; la clé privée reste secrète et sert à déchiffrer ou signer. Ce paradigme résout le problème de distribution initiale des clés symétriques et permet la mise à l'échelle.</p>
+
+                <h3>Problèmes mathématiques sous-jacents</h3>
+                <p>La sécurité repose sur des difficultés mathématiques : la <strong>factorisation</strong> pour RSA et le <strong>logarithme discret</strong> (et ses variantes ECC) pour Diffie-Hellman et DSA. Ces problèmes sont « one-way » : faciles à calculer dans un sens, difficiles à inverser sans information secrète.</p>
+
+                <h3>RSA — Génération, chiffrement et signature</h3>
+                <p>RSA (Rivest, Shamir, Adleman) est basé sur la multiplication de deux grands nombres premiers p et q donnant n = p×q. La paire (e,n) est publique, (d,n) privée, avec e×d ≡ 1 (mod φ(n)). RSA sert au chiffrement, mais aussi (souvent) à la signature numérique — avec des schémas de padding (OAEP, PSS) pour la sécurité pratique.</p>
+
+                <div class="code-block">
+RSA — PROCESSUS SIMPLIFIÉ
+-------------------------
+1) Choisir p,q grands et premiers -> n = p*q
+2) Choisir e (public), calculer d tel que e*d ≡ 1 (mod φ(n))
+3) Chiffrement : C = M^e mod n
+4) Déchiffrement : M = C^d mod n
+                </div>
+
+                <h3>Diffie-Hellman & échanges de clé</h3>
+                <p>Diffie-Hellman permet à deux parties de dériver un secret partagé sans le transmettre explicitement, en s'appuyant sur l'exponentiation modulaire et la difficulté du logarithme discret. Variantes modernes : ECDH (sur courbes elliptiques) et DHE/ECDHE (éphémères) pour le PFS (Perfect Forward Secrecy).</p>
+
+                <h3>Aspects pratiques & padding</h3>
+                <p>La cryptographie asymétrique est coûteuse en calcul ; elle est souvent utilisée pour échanger des clés de session (symétriques). Les schémas de padding (OAEP pour chiffrement, PSS pour signatures) sont essentiels pour prévenir des attaques pratiques (oracle, replay, etc.).</p>
+
+                <h3>Applications</h3>
+                <ul>
+                    <li>HTTPS / TLS : combinaison asymétrique (handshake) + chiffrement symétrique (session)</li>
+                    <li>Signatures numériques : authentification et non-répudiation</li>
+                    <li>PKI, messageries sécurisées, blockchain (signatures d'entrées)</li>
+                </ul>
+            </section>
+
+            <!-- MODULE 3 -->
+            <section id="module-3">
+                <h2>3. Infrastructures à Clé Publique (PKI)</h2>
+
+                <h3>Pourquoi une PKI ?</h3>
+                <p>Une PKI apporte la confiance : comment vérifier que la clé publique que vous utilisez appartient bien à la personne ou au serveur déclaré ? Les PKI fournissent un ensemble de rôles (CA, RA), de politiques et d'outils pour émettre, valider et révoquer des certificats.</p>
+
+                <h3>Certificat X.509 — structure et extensions</h3>
+                <p>Le format standard X.509 contient : version, numéro de série, algorithme de signature, issuer (émetteur), validity (dates), subject (propriétaire), clé publique et signature de l'émetteur. Les extensions (SAN, Key Usage, Extended Key Usage, Basic Constraints, CRL Distribution Points) définissent les usages et la chaîne de confiance.</p>
+
+                <h3>Autorités de Certification & hiérarchie</h3>
+                <p>Les autorités racine (Root CA) signent des autorités intermédiaires, qui à leur tour signent des certificats finaux. Les Root CA figurent dans les Trust Stores des systèmes et navigateurs. La hiérarchie permet la délégation et la révocation contrôlée.</p>
+
+                <h3>Validation et révocation</h3>
+                <p>La validation consiste à vérifier la chaîne jusqu'à une Root CA de confiance, la validité temporelle et l'absence de révocation. Les mécanismes de révocation incluent les CRL (listes parfois lourdes) et OCSP (consultation en ligne). OCSP Stapling et autres optimisations limitent le coût et les problèmes de disponibilité.</p>
+
+                <div class="code-block">
+RÉVOCATION — MÉTHODES
+----------------------
+1) CRL : liste périodique publiée par la CA (latence).
+2) OCSP : requête en temps réel pour l'état (frais réseau).
+3) OCSP Stapling : serveur web présente la preuve OCSP (meilleure performance).
+                </div>
+
+                <h3>Attaques MITM et solutions pratiques</h3>
+                <p>Un attaquant qui parvient à faire accepter un faux certificat (certificat auto-signé non vérifié) peut réaliser un MITM. Mesures : HSTS, pinning (avec prudence), vérification stricte des chaînes, proteção des clés privées et bonnes politiques de délivrance côté CA.</p>
+            </section>
+
+            <!-- MODULE 4 -->
+            <section id="module-4">
+                <h2>4. Guide Pratique & Perspectives Futures</h2>
+
+                <h3>OpenSSL & déploiement PKI sur VPS (guide synthétique)</h3>
+                <p>Sur un VPS Linux, OpenSSL est l'outil de base pour générer clés, CSR et signer/certifier. Bonnes pratiques : générer des clés fortes (RSA 3072–4096 bits ou clés ECC appropriées), protéger les clés privées par chiffrement (aes256), utiliser des intermediaires pour limiter l'exposition des Root CA.</p>
+
+                <div class="code-block">
+COMMANDES UTILES (EXEMPLES)
+---------------------------
+# Générer une clé RSA protégée
+openssl genrsa -aes256 -out private/server.key 4096
+
+# Générer une CSR
+openssl req -new -key private/server.key -out server.csr
+
+# Lire un certificat
+openssl x509 -in server.crt -text -noout
+                </div>
+
+                <h3>Blockchain — cryptographie appliquée à la confiance décentralisée</h3>
+                <p>La blockchain n'a pas pour but de cacher l'information mais de garantir son intégrité et sa traçabilité. Les primitives clés sont les fonctions de hachage immuables et les signatures numériques permettant de prouver la possession d'une clé (transactions). Les protocoles de consensus (PoW, PoS) assurent la tolérance aux fautes et la résistance à la fraude.</p>
+
+                <h3>Menace quantique et cryptographie post-quantique</h3>
+                <p>Un ordinateur quantique suffisamment puissant exécuterait l'algorithme de Shor et casserait RSA/ECC en temps polynomial. La communauté a donc lancé la recherche et la standardisation des primitives post-quantiques (NIST) : basées sur les réseaux (lattice), codes correcteurs, isogénies, etc. Le déploiement progressif (hybride) permettra une transition contrôlée.</p>
+
+                <div class="code-block">
+ALERTE & PLAN D'ACTION
+----------------------
+- Menace : Algorithmes quantiques (Shor) affectent RSA/ECC.
+- Solutions : algorithmes post-quantiques (NIST), migration hybride (classique + PQC).
+- Recommandation : audit des certificats/clé, plan de migration à 5-10 ans.
+                </div>
+
+                <h3>Points de synthèse & bonnes pratiques</h3>
+                <ul>
+                    <li>Appliquer Kerckhoffs : assumez que l'algorithme est connu, protégez la clé.</li>
+                    <li>Utiliser TLS correctement : suites modernes (ECDHE, AEAD), PFS activé.</li>
+                    <li>Gérer le cycle de vie des clés : génération, stockage sécurisé (HSM si possible), rotation et révocation.</li>
+                    <li>Préparer la transition post-quantique : suivre les standards NIST et appliquer les mises à jour.</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>// FIN DE TRANSMISSION. <br>
+            // TP réalisé par [SAMNICK BIGA, TONYE WILFRIED, POUGOUE JORDAN, LAPA MICHEL] - Licence 3. <br>
+            // Source : Modules Cryptographie IHTM.</p>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const charArray = chars.split('');
+        
+        const fontSize = 14;
+        let columns = canvas.width / fontSize;
+        let drops = [];
+
+        function initDrops() {
+             columns = canvas.width / fontSize;
+             drops = [];
+             for(let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100;
+             }
+        }
+        initDrops();
+        window.addEventListener('resize', initDrops);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975){
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 33);
+    </script>
+</body>
+</html>
